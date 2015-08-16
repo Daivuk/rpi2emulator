@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include <Windowsx.h>
 #include <gl\gl.h>
 #include <gl\glu.h>
 #include <thread>
@@ -57,6 +58,27 @@ LRESULT CALLBACK WinProc(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam)
     {
         PostQuitMessage(0);
         return 0;
+    }
+    else if (msg == WM_MOUSEMOVE)
+    {
+        auto xPos = GET_X_LPARAM(lparam);
+        auto yPos = GET_Y_LPARAM(lparam);
+
+        static bool bCursorShowned = true;
+
+        if (xPos >= 128 &&
+            xPos <= SCREEN_W - 8 &&
+            yPos >= 8 &&
+            yPos <= SCREEN_H - 64)
+        {
+            if (bCursorShowned) ShowCursor(FALSE);
+            bCursorShowned = false;
+        }
+        else
+        {
+            if (!bCursorShowned) ShowCursor(TRUE);
+            bCursorShowned = true;
+        }
     }
 
     return DefWindowProc(handle, msg, wparam, lparam);
@@ -163,7 +185,7 @@ int CALLBACK WinMain(
 
     // Put the kernel at 0x8000
     FILE *fic = NULL;
-    fopen_s(&fic, "tests/build/kernel7.img", "rb");
+    fopen_s(&fic, "C:\\Users\\David\\Documents\\GitHub\\OnutOS\\build\\kernel7.img", "rb");
     fseek(fic, 0, SEEK_END);
     auto fileSize = ftell(fic);
     programSize = (decltype(programSize))fileSize;

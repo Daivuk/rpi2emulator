@@ -1,5 +1,6 @@
 #include <cinttypes>
 #include <cassert>
+#include <Windows.h>
 
 extern bool bDone;
 extern uint8_t *pMemory;
@@ -79,9 +80,19 @@ uint32_t read32(uint32_t addr)
     {
         if (addr >= 0x3F00B880 && addr <= 0x3F00B880 + 0x20)
         {
-            // Mailboox
+            // Mailbox
             addr -= 0x3F00B880;
             auto val = *(uint32_t*)(mailbox + addr);
+            return val;
+        }
+        else if (addr == 0x60000000)
+        {
+            // Mouse position
+            POINT pos;
+            GetCursorPos(&pos);
+            uint32_t val = pos.x;
+            val <<= 16;
+            val |= pos.y & 0xFFFF;
             return val;
         }
         else
@@ -375,21 +386,63 @@ void armStart()
             if (type)
             {
                 // Data processing register shift
-                auto S = (inst >> 20) & 0x1;
-                auto Rd = (inst >> 16) & 0xF;
-                auto SBZ = (inst >> 12) & 0xF;
-                auto Rs = (inst >> 8) & 0xF;
-                auto Rm = inst & 0xF;
-
                 if (opcode == INSTA_MUL)
                 {
                     // A4.1.40 MUL
+                    auto S = (inst >> 20) & 0x1;
+                    auto Rd = (inst >> 16) & 0xF;
+                    auto SBZ = (inst >> 12) & 0xF;
+                    auto Rs = (inst >> 8) & 0xF;
+                    auto Rm = inst & 0xF;
+
                     if (SBZ) assert(false); // Should be zero
                     r[Rd] = r[Rm] * r[Rs];
                     if (S)
                     {
                         N = ((r[Rd] >> 31) & 0x1) ? true : false;
                         Z = r[Rd] == 0 ? true : false;
+                    }
+                }
+                else if (opcode == INST_MOV)
+                {
+                    auto shift = (inst >> 4) & 0xF;
+                    if (shift == 3)
+                    {
+                        // A5.1.8 Data-processing operands - Logical shift right by register
+                        auto S = (inst >> 20) & 0x1;
+                        auto Rn = (inst >> 16) & 0xF;
+                        auto Rd = (inst >> 12) & 0xF;
+                        auto Rs = (inst >> 8) & 0xF;
+                        auto Rm = inst & 0xF;
+
+                        if (Rn == 15 || Rd == 15 || Rs == 15 || Rm == 15) assert(false); // UNPREDICTABLE
+
+                        auto Rs7_0 = r[Rs] & 0xFF;
+
+                        if (Rs7_0 == 0)
+                        {
+                            r[Rd] = r[Rm];
+                            //TODO: shifter_carry_out = C Flag
+                        }
+                        else if (Rs7_0 < 32)
+                        {
+                            r[Rd] = r[Rm] >> (r[Rs] & 0xFF);
+                            //TODO: shifter_carry_out = Rm[Rs[7:0] - 1]
+                        }
+                        else if (Rs7_0 == 32)
+                        {
+                            r[Rd] = 0;
+                            //TODO: shifter_carry_out = Rm[31]
+                        }
+                        else // Rs7_0 > 32
+                        {
+                            r[Rd] = 0;
+                            //TODO: shifter_carry_out = 0
+                        }
+                    }
+                    else
+                    {
+                        assert(false);
                     }
                 }
                 else
