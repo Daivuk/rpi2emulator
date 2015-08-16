@@ -334,6 +334,8 @@ void armStart()
                 }
                 else
                 {
+                    // A4.1.107 SWI
+                    // Software interupt
                     assert(false);
                 }
             }
