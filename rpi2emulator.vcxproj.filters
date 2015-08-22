@@ -8,5 +8,63 @@
   <ItemGroup>
     <ClInclude Include="arm.h" />
     <ClInclude Include="gpu.h" />
+    <ClInclude Include="..\OnutOS\source\ui.h">
+      <Filter>asm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OnutOS\source\window.h">
+      <Filter>asm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OnutOS\source\bitmap.h">
+      <Filter>asm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OnutOS\source\control.h">
+      <Filter>asm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OnutOS\source\mem.h">
+      <Filter>asm</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="asm">
+      <UniqueIdentifier>{464d9e84-89ca-4b1b-8524-9f2b8bbec05a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\OnutOS\source\ui.S">
+      <Filter>asm</Filter>
+    </None>
+    <None Include="..\OnutOS\source\usb.S">
+      <Filter>asm</Filter>
+    </None>
+    <None Include="..\OnutOS\source\window.S">
+      <Filter>asm</Filter>
+    </None>
+    <None Include="..\OnutOS\source\bitmap.S">
+      <Filter>asm</Filter>
+    </None>
+    <None Include="..\OnutOS\source\gpio.s">
+      <Filter>asm</Filter>
+    </None>
+    <None Include="..\OnutOS\source\mailbox.s">
+      <Filter>asm</Filter>
+    </None>
+    <None Include="..\OnutOS\source\main.s">
+      <Filter>asm</Filter>
+    </None>
+    <None Include="..\OnutOS\source\mem.S">
+      <Filter>asm</Filter>
+    </None>
+    <None Include="..\OnutOS\source\screen.s">
+      <Filter>asm</Filter>
+    </None>
+    <None Include="..\OnutOS\source\time.s">
+      <Filter>asm</Filter>
+    </None>
+    <None Include="..\OnutOS\source\control.S">
+      <Filter>asm</Filter>
+    </None>
+    <None Include="..\OnutOS\source\process.h">
+      <Filter>asm</Filter>
+    </None>
   </ItemGroup>
 </Project>

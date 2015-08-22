@@ -105,11 +105,11 @@ int CALLBACK WinMain(
     auto h = SCREEN_H;
     auto x = (sw - w) / 2;
     auto y = (sh - h) / 2;
-    auto hWnd = CreateWindow(L"rpi2emulatorWindow",
-                             L"Raspberry Pi 2 model B Oak Nut OS 1.0 Emulator",
-                             WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE,
-                             x, y, w, h,
-                             nullptr, nullptr, nullptr, nullptr);
+    hWnd = CreateWindow(L"rpi2emulatorWindow",
+                        L"Raspberry Pi 2 model B Oak Nut OS 1.0 Emulator",
+                        WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE,
+                        x, y, w, h,
+                        nullptr, nullptr, nullptr, nullptr);
 
     // Initialize OpenGL
     GLuint PixelFormat;

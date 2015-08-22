@@ -41,6 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -74,6 +76,10 @@
       <Message>
       </Message>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -115,8 +121,27 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\OnutOS\source\bitmap.h" />
+    <ClInclude Include="..\OnutOS\source\control.h" />
+    <ClInclude Include="..\OnutOS\source\mem.h" />
+    <ClInclude Include="..\OnutOS\source\ui.h" />
+    <ClInclude Include="..\OnutOS\source\window.h" />
     <ClInclude Include="arm.h" />
     <ClInclude Include="gpu.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\OnutOS\source\bitmap.S" />
+    <None Include="..\OnutOS\source\control.S" />
+    <None Include="..\OnutOS\source\gpio.s" />
+    <None Include="..\OnutOS\source\mailbox.s" />
+    <None Include="..\OnutOS\source\main.s" />
+    <None Include="..\OnutOS\source\mem.S" />
+    <None Include="..\OnutOS\source\process.h" />
+    <None Include="..\OnutOS\source\screen.s" />
+    <None Include="..\OnutOS\source\time.s" />
+    <None Include="..\OnutOS\source\ui.S" />
+    <None Include="..\OnutOS\source\usb.S" />
+    <None Include="..\OnutOS\source\window.S" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

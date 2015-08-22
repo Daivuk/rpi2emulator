@@ -90,6 +90,18 @@ uint32_t read32(uint32_t addr)
             // Mouse position
             POINT pos;
             GetCursorPos(&pos);
+            RECT rect;
+            extern HWND hWnd;
+            ScreenToClient(hWnd, &pos);
+            extern int SCREEN_W;
+            extern int SCREEN_H;
+            pos.x -= 128;
+            pos.y -= 8;
+            if (pos.x < 0) pos.x = 0;
+            if (pos.y < 0) pos.y = 0;
+            if (pos.x >= SCREEN_W - 8 - 128) pos.x = SCREEN_W - 8 - 128 - 1;
+            if (pos.y >= SCREEN_H - 8 - 64) pos.y = SCREEN_H - 8 - 64 - 1;
+
             uint32_t val = pos.x;
             val <<= 16;
             val |= pos.y & 0xFFFF;
