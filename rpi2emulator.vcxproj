@@ -124,6 +124,7 @@
     <ClInclude Include="..\OnutOS\source\bitmap.h" />
     <ClInclude Include="..\OnutOS\source\control.h" />
     <ClInclude Include="..\OnutOS\source\mem.h" />
+    <ClInclude Include="..\OnutOS\source\object.h" />
     <ClInclude Include="..\OnutOS\source\ui.h" />
     <ClInclude Include="..\OnutOS\source\window.h" />
     <ClInclude Include="arm.h" />
@@ -136,6 +137,7 @@
     <None Include="..\OnutOS\source\mailbox.s" />
     <None Include="..\OnutOS\source\main.s" />
     <None Include="..\OnutOS\source\mem.S" />
+    <None Include="..\OnutOS\source\object.S" />
     <None Include="..\OnutOS\source\process.h" />
     <None Include="..\OnutOS\source\screen.s" />
     <None Include="..\OnutOS\source\time.s" />

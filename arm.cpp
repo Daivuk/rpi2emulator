@@ -24,7 +24,8 @@ uint32_t r[16] = {0};
 #define INST_LOAD_STORE_MULTIPLE 0x4
 #define INST_BRANCH 0x5
 
-#define MEDIA_INST_MULTIPLIES 0xE
+#define MEDIA_INST_UDIV 0x2
+#define MEDIA_INST_UBFX 0x3
 
 #define COND_EQ 0x0
 #define COND_NE 0x1
@@ -44,9 +45,11 @@ uint32_t r[16] = {0};
 
 #define INST_AND 0x0
 #define INST_SUB 0x2
+#define INST_RSB 0x3
 #define INST_ADD 0x4
 #define INST_TST 0x8
 #define INST_TEQ 0x9
+#define INST_BLX 0x9
 #define INST_CMP 0xA
 #define INST_ORR 0xC
 #define INST_MOV 0xD
@@ -54,6 +57,7 @@ uint32_t r[16] = {0};
 #define INST_MVN 0xF
 
 #define INSTA_MUL 0x0
+#define INSTA_MLA 0x1
 
 bool N = false;
 bool Z = false;
@@ -90,7 +94,6 @@ uint32_t read32(uint32_t addr)
             // Mouse position
             POINT pos;
             GetCursorPos(&pos);
-            RECT rect;
             extern HWND hWnd;
             ScreenToClient(hWnd, &pos);
             extern int SCREEN_W;
@@ -196,13 +199,39 @@ uint32_t calculateOperand(uint32_t shifter_operand)
 {
     if (shifter_operand & 0xFF0)
     {
-        assert(false);
-        return 0;
+        // A5.1.1 Encoding
+        if (shifter_operand & 0x10)
+        {
+            // Register shifts
+            assert(false);
+        }
+        else
+        {
+            // Immediate shifts
+            auto shift_imm = (shifter_operand >> 7) & 0x1F;
+            auto shift = (shifter_operand >> 5) & 0x3;
+            auto Rm = shifter_operand & 0xF;
+
+            if (shift == 0)
+            {
+                return r[Rm] << shift_imm;
+            }
+            else if (shift == 1)
+            {
+                return r[Rm] >> shift_imm;
+            }
+            else
+            {
+                assert(false);
+            }
+        }
     }
     else
     {
         return calculateRn(shifter_operand);
     }
+
+    return 0;
 }
 
 void armStart()
@@ -344,6 +373,11 @@ void armStart()
                     // A4.1.106 SUB
                     r[Rd] = r[Rn] - immediate;
                 }
+                else if (opcode == INST_RSB)
+                {
+                    // A4.1.106 RSB - Reverse substract
+                    r[Rd] = immediate - r[Rn];
+                }
                 else
                 {
                     // A4.1.107 SWI
@@ -417,6 +451,17 @@ void armStart()
                         Z = r[Rd] == 0 ? true : false;
                     }
                 }
+                else if (opcode == INSTA_MLA)
+                {
+                    // A4.1.34 MLA
+                    auto S = (inst >> 20) & 0x1;
+                    auto Rd = (inst >> 16) & 0xF;
+                    auto Rn = (inst >> 12) & 0xF;
+                    auto Rs = (inst >> 8) & 0xF;
+                    auto Rm = inst & 0xF;
+
+                    r[Rd] = (r[Rm] * r[Rs] + r[Rn]);
+                }
                 else if (opcode == INST_MOV)
                 {
                     auto shift = (inst >> 4) & 0xF;
@@ -458,6 +503,14 @@ void armStart()
                     {
                         assert(false);
                     }
+                }
+                else if (opcode == INST_BLX)
+                {
+                    auto Rm = inst & 0xF;
+                    if (Rm == 15) assert(false); // UNPREDICTABLE
+                    r[LR_REG] = r[PC_REG];
+                    r[PC_REG] = r[Rm] & 0xFFFFFFFE;
+                    continue;
                 }
                 else
                 {
@@ -598,9 +651,7 @@ void armStart()
                     auto S = (inst >> 20) & 0x1;
                     auto Rn = (inst >> 16) & 0xF;
                     auto Rd = (inst >> 12) & 0xF;
-                    auto shift_imm = (inst >> 7) & 0x1F;
-                    auto shifter_operand = inst & 0xF;
-                    auto Rmv = r[shifter_operand] << shift_imm;
+                    auto shifter_operand = inst & 0xFFF;
 
                     if (I == 0)
                     {
@@ -610,7 +661,7 @@ void armStart()
                             auto bit4 = (inst >> 4) & 0x1;
 
                             if (bit7 && bit4) assert(false); // see Extending the instruction set on page A3-32 to determine which instruction it is.
-                            r[Rd] = r[Rn] + Rmv;
+                            r[Rd] = r[Rn] + calculateOperand(shifter_operand);
                         }
                         else
                         {
@@ -827,8 +878,9 @@ void armStart()
             auto bit4 = (inst >> 4) & 0x1;
             if (bit4)
             {
-                auto mediaInst = (inst >> 23) & 0x1F;
-                if (mediaInst == MEDIA_INST_MULTIPLIES)
+                // A3-34
+                auto mediaInst = (inst >> 23) & 0x3;
+                if (mediaInst == MEDIA_INST_UDIV)
                 {
                     auto opc1 = (inst >> 20) & 0x7;
                     auto Rd = (inst >> 16) & 0xF;
@@ -837,6 +889,25 @@ void armStart()
                     auto opc2 = (inst >> 5) & 0x7;
                     auto Rm = inst & 0xF;
                     r[Rd] = r[Rm] / r[Rs];
+                }
+                else if (mediaInst == MEDIA_INST_UBFX)
+                {
+                    auto op = (inst >> 20) & 0x7;
+                    if (op == 0)
+                    {
+                        assert(false);
+                    }
+                    else
+                    {
+                        auto Rd = (inst >> 12) & 0xF;
+                        auto Rm = inst & 0xF;
+
+                        auto offset = (inst >> 7) & 0x1F;
+                        auto width = (inst >> 16) & 0xF;
+                        ++width;
+
+                        assert(false);
+                    }
                 }
                 else
                 {
